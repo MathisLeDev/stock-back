@@ -1,0 +1,6 @@
+node_modules
+
+src/public/images/*
+!src/public/images/example*.jpg
+
+.idea

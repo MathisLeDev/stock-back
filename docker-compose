@@ -1,0 +1,9 @@
+docker run -p 5432:5432 -d \
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_DB=stripe-example \
+    -v pgdata:/var/lib/postgresql/data \
+    postgres
+
+psql stripe-example -h localhost -U postgres
+docker run --hostname=ac7227e20906 --env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/14/bin --env=TZ=UTC --env=DEBIAN_FRONTEND=noninteractive --env=LANG=en_US.utf8 --env=PG_MAJOR=14 --env=PGDATA=/var/lib/postgresql/data --volume=/var/lib/postgresql/data --label='org.opencontainers.image.ref.name=ubuntu' --label='org.opencontainers.image.version=22.04' --runtime=runc -d ubuntu/postgres:latest
