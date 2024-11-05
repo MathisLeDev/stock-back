@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, ManyToOne, OneToMany} from "typeorm"
+import {Alert} from "./alert";
 
 @Entity()
 export class User extends BaseEntity{
@@ -16,4 +17,8 @@ export class User extends BaseEntity{
 
     @Column()
     email: string
+
+    @OneToMany(() => Alert, (alert) => alert.user)
+    alerts: Alert[]
+
 }

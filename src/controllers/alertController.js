@@ -18,40 +18,65 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const dotenv_1 = __importDefault(require("dotenv"));
 const alert_1 = require("../entity/alert");
+const Company_1 = require("../entity/Company");
 dotenv_1.default.config();
 class AlertController {
     constructor() {
     }
-    static getAlert(req, res) {
+    static getAlerts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const id = req.query.id;
-            const user = req.user;
-            if (!id) {
-                return res.status(400).send({
-                    message: "Please provide id"
-                });
+            try {
+                const user = req.user;
+                const companyName = req.query.companyName;
+                const userExist = yield user_1.User.findOne({ where: { id: user.id } });
+                if (!userExist) {
+                    return res.status(400).send({
+                        message: "User not found"
+                    });
+                }
+                const alerts = yield alert_1.Alert.find({ where: { user: user.id, company: { name: companyName } } });
+                return res.json(alerts);
             }
-            const alert = yield alert_1.Alert.findOne({ where: { id, user: user.id }, relations: ['user'] });
-            if (!alert) {
-                return res.status(400).send({
-                    message: "Alert not found"
-                });
+            catch (e) {
+                return e;
             }
-            return res.json(alert);
         });
     }
     static createAlert(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = req.user;
             const { companyId, value, shouldBeLower } = req.body;
+            console.log(req.body);
             const userExist = yield user_1.User.findOne({ where: { id: user.id } });
-            const companyExist = yield user_1.User.findOne({ where: { id: companyId } });
+            let companyExist = yield Company_1.Company.findOne({ where: { name: companyId } });
+            console.log('Company exist', companyExist);
+            if (!userExist) {
+                return res.status(400).send({
+                    message: "User not found"
+                });
+            }
+            if (!companyId || !value) {
+                return res.status(400).send({
+                    message: "Please provide companyId and value"
+                });
+            }
+            if (!companyExist) {
+                const newCompany = yield Company_1.Company.create({ name: companyId }).save();
+                if (newCompany) {
+                    companyExist = newCompany;
+                }
+                else {
+                    return res.status(400).send({
+                        message: "Error during company creation"
+                    });
+                }
+            }
             if (!userExist || !companyExist) {
                 return res.status(400).send({
                     message: "User or company not found"
                 });
             }
-            const alert = alert_1.Alert.create({ value, shouldBeLower, user, company: companyId });
+            const alert = alert_1.Alert.create({ value, shouldBeLower: !!shouldBeLower, user, company: companyExist });
             const isAlertCreated = yield alert.save();
             if (!isAlertCreated) {
                 return res.status(400).send({
@@ -61,98 +86,37 @@ class AlertController {
             return res.json(alert);
         });
     }
-    static updateUser(req, res) {
+    static deleteAlert(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(req.body);
-                const user = req.user;
-                const userToUpdate = yield user_1.User.findOne({ where: { id: user.id } });
-                if (!userToUpdate) {
-                    return res.status(400).send({
-                        message: "User not found"
-                    });
-                }
-                const { firstName, lastName, email, password } = req.body;
-                userToUpdate.firstName = firstName;
-                userToUpdate.lastName = lastName;
-                userToUpdate.email = email;
-                if (password) {
-                    userToUpdate.password = crypto.createHash('sha256').update(req.body.password).digest('hex');
-                }
-                if (yield userToUpdate.save())
-                    return res.json(userToUpdate);
-                else
-                    return res.status(400).send({
-                        message: "Error during update user"
-                    });
-            }
-            catch (e) {
-                return res.status(400).send({
-                    message: "Error during update user"
-                });
-            }
-        });
-    }
-    static login(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { email, password } = req.body;
-            if (!email || !password) {
-                return res.status(400).send({
-                    message: "Please provide username and password"
-                });
-            }
-            const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-            const user = yield user_1.User.findOne({ where: { email, password: passwordHash } });
-            if (!user) {
+            const alertId = req.query.alertId;
+            const user = req.user;
+            const userExist = yield user_1.User.findOne({ where: { id: user.id } });
+            if (!userExist) {
                 return res.status(400).send({
                     message: "User not found"
                 });
             }
-            //remove password
-            const userRes = Object.assign({}, user);
-            const TOKEN = process.env.TOKEN;
-            delete userRes.password;
-            const token = jwt.sign({ userRes }, TOKEN, { algorithm: 'HS256', expiresIn: '1h' });
-            return res.json({ user: userRes, token: token });
-        });
-    }
-    static getUsers(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const users = yield user_1.User.find();
-            if (!users) {
+            const alertExist = yield alert_1.Alert.findOne({ where: { id: alertId }, relations: ['user'] });
+            if (!alertExist) {
                 return res.status(400).send({
-                    message: "Users not found"
+                    message: "Alert not found"
                 });
             }
-            //remove password
-            users.forEach((user) => {
-                delete user.password;
+            if (alertExist.user.id !== user.id) {
+                return res.status(401).send({
+                    message: "You are not allowed to delete this alert"
+                });
+            }
+            const isDeleted = yield alert_1.Alert.delete({ id: alertId });
+            console.log('isDeleted', isDeleted);
+            if (!isDeleted) {
+                return res.status(400).send({
+                    message: "Error during deletion"
+                });
+            }
+            return res.json({
+                message: "Alert deleted"
             });
-            return res.json(users);
-        });
-    }
-    static deleteUser(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { id } = req.params;
-                const user = yield user_1.User.findOne({ where: { id } });
-                if (!user) {
-                    return res.status(200).send({
-                        message: "User not found"
-                    });
-                }
-                if (yield user.remove())
-                    return res.json({ message: "User deleted" });
-                else
-                    return res.status(400).send({
-                        message: "Error during delete user"
-                    });
-            }
-            catch (e) {
-                return res.status(400).send({
-                    message: "Error during delete user"
-                });
-            }
         });
     }
 }

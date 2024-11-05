@@ -29,11 +29,11 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Alert.prototype, "shouldBeLower", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => user_1.User),
+    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => user.alerts),
     __metadata("design:type", user_1.User)
 ], Alert.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => Company_1.Company),
+    (0, typeorm_1.ManyToOne)(() => Company_1.Company, (company) => company.alerts),
     __metadata("design:type", Company_1.Company)
 ], Alert.prototype, "company", void 0);
 exports.Alert = Alert = __decorate([

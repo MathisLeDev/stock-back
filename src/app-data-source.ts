@@ -1,5 +1,7 @@
 import {DataSource} from "typeorm";
 import {User} from "./entity/user";
+import {Alert} from "./entity/alert";
+import {Company} from "./entity/Company";
 
 // l'host se retrouve dans les gestionnaire de tâche le Ethernet wsl
 
@@ -13,7 +15,7 @@ export const appDataSource = new DataSource({
     database: "postgres",
     synchronize: true,
     logging: true,
-    entities: [User],
+    entities: [User, Alert, Company],
     subscribers: [],
     migrations: [],
 })

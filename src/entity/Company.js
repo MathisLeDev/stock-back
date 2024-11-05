@@ -17,10 +17,14 @@ let Company = class Company extends typeorm_1.BaseEntity {
 exports.Company = Company;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], Company.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => alert_1.Alert, (alert) => alert.user),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Company.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => alert_1.Alert, (alert) => alert.user, { nullable: true }),
     __metadata("design:type", Array)
 ], Company.prototype, "alerts", void 0);
 exports.Company = Company = __decorate([

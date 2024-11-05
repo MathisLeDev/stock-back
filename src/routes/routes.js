@@ -22,6 +22,8 @@ router.get('/user/ping', (req, res) => {
     });
 });
 router.post('/api/alert', alertController_1.AlertController.createAlert);
+router.get('/api/alert', alertController_1.AlertController.getAlerts);
+router.patch('/api/alert', alertController_1.AlertController.deleteAlert);
 router.get('/admin/ping', (req, res) => {
     res.send('pong');
 });

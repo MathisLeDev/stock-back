@@ -28,6 +28,10 @@ router.get('/user/ping', (req, res) => {
 
 router.post('/api/alert', AlertController.createAlert)
 
+router.get('/api/alert', AlertController.getAlerts)
+
+router.patch('/api/alert', AlertController.deleteAlert)
+
 router.get('/admin/ping', (req, res) => {
     res.send('pong')
 });

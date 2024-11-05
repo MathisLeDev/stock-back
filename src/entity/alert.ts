@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne} from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, ManyToOne} from "typeorm"
 import {Company} from "./Company";
 import {User} from "./user";
 
@@ -13,9 +13,9 @@ export class Alert extends BaseEntity{
     @Column()
     shouldBeLower: boolean
 
-    @OneToOne(() => User)
+    @ManyToOne(() => User, (user) => user.alerts)
     user: User
 
-    @OneToOne(() => Company)
+    @ManyToOne(() => Company, (company) => company.alerts)
     company: Company
 }
