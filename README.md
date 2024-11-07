@@ -1,4 +1,4 @@
-21/11/2023 - Mathis Brouard
+07/11/2024 - Mathis Brouard
 
 # Ecommerce back
 
@@ -39,9 +39,6 @@ docker exec -it lenomici bash
 Ajouter les fichiers du dossiers migrations dans la clé "migrations" du fichier app-data-source.ts
 
 ## Lancement du serveur :
-
-### IMPORTANT ⚠
-Dans app-data-source.ts, changer l'ip de l'host par celui du conteneur de votre machine, le vEthernet(WSL) dans le gestionnaire de tâches
 
 ``` bash
 npm start
