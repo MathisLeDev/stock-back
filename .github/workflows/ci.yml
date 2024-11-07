@@ -39,12 +39,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Wait for PostgreSQL to be ready
+      - name: Attendre que PostgreSQL soit prêt
         run: |
-          while ! pg_isready -h localhost -U root -d postgres; do
-            echo "Waiting for PostgreSQL..."
+          until pg_isready -h localhost -p 5432 -U testuser; do
+            echo "Base de données non prête, attente de 2 secondes..."
             sleep 2
           done
+      
 
       - name: Run tests
         run: npm test
